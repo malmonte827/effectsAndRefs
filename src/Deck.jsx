@@ -18,7 +18,10 @@ function Deck() {
     }, []);
 
     async function drawCard() {
+        try{
         const res = await axios.get(`${API_BASE_URL}/${deck.deck_id}/draw`);
+
+        if (res.data.remaining === 0) throw new Error(`No cards remaining`)
 
         const card = res.data.cards[0];
 
@@ -30,6 +33,14 @@ function Deck() {
                 image: card.image,
             },
         ]);
+    } catch(err){
+        alert(err)
+    }
+    }
+
+    async function shuffleDeck(){
+        await axios.get(`${API_BASE_URL}/${deck.deck_id}/shuffle`)
+        setDraw([])
     }
 
     function renderDrawBtn(){
@@ -40,16 +51,26 @@ function Deck() {
         )
     }
 
+    function renderShuffleBtn(){
+        return(
+            <button
+            onClick={shuffleDeck}
+            >Shuffle</button>
+        )
+    }
+
 
     return (
         <section>
-            {renderDrawBtn}
+            {renderDrawBtn()}
+            {renderShuffleBtn()}
         <div>{
             draw.map(c =>(
                 <Card key={c.id} name={c.name} image={c.image}/>
             ))}
         </div>
         </section>
+        
     )
     
 }
